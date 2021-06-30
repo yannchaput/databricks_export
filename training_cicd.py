@@ -52,4 +52,4 @@ loaded_model = mlflow.sklearn.load_model(logged_model)
 # Predict on a Pandas DataFrame.
 y_predicted = loaded_model.predict(train_ds)
 r2 = r2_score(y_actual,y_predicted)
-sys.exit(str(r2))
+dbutils.notebook.exit({"r_square" : str(r2)})
