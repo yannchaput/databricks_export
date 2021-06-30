@@ -1,6 +1,28 @@
 import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument("alpha")
-parser.add_argument("l1_ratio")
-args = parser.parse_args()
-print(args.alpha)
+import mlflow
+
+def parse_args():
+  parser = argparse.ArgumentParser(description="machine learning industrialized training example")
+  parser.add_argument("alpha",type=float,help="Elasticnet alpha hyperparamter",default=0.1)
+  parser.add_argument("l1_ratio",type=float,help="Elasticnet l1 regularization ratio",default=0.5)
+  args = parser.parse_args()
+  return args
+
+def create_experiment():
+  exp_path="/Repos/yann.chaput@axa.com/databricks-projects/notebooks/mlflow/train_cicd_exp"
+  exp=mlflow.get_experiment_by_name(exp_path)
+  exp_id=None
+  if exp is None:
+    exp_id=mlflow.create_experiment(exp_path)
+  else:
+    exp_id=exp.experiment_id
+  return exp_id
+
+args=parse_args()
+alpha=args.alpha
+l1_ratio=args.l1_ratio
+exp_id=create_experiment()
+print("Using experiment {}".format(exp_id))
+submitted_run = mlflow.projects.run(uri="https://github.com/mlflow/mlflow#examples/sklearn_elasticnet_wine", experiment_id=exp_id, parameters={"alpha":alpha, "l1_ratio":l1_ratio})
+submitted_run.wait()
+print(f"Submitted run with id: {submitted_run.run_id} and status: {submitted_run.get_status()}")
