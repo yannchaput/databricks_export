@@ -7,7 +7,7 @@ from mlflow.tracking import MlflowClient
 
 MODEL_NAME="ElasticnetWineModel"
 
-def parse_args() -> list:
+def parse_args() -> Namespace:
   parser = argparse.ArgumentParser(description="machine learning industrialized training example")
   parser.add_argument("alpha",type=float,help="Elasticnet alpha hyperparamter",default=0.1)
   parser.add_argument("l1_ratio",type=float,help="Elasticnet l1 regularization ratio",default=0.5)
