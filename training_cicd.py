@@ -21,6 +21,7 @@ def create_experiment():
 args=parse_args()
 alpha=args.alpha
 l1_ratio=args.l1_ratio
+# create new experiment if not existing
 exp_id=create_experiment()
 print("Using experiment {}".format(exp_id))
 submitted_run = mlflow.projects.run(uri="https://github.com/mlflow/mlflow#examples/sklearn_elasticnet_wine", experiment_id=exp_id, parameters={"alpha":alpha, "l1_ratio":l1_ratio})
