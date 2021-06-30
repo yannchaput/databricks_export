@@ -1,5 +1,7 @@
 import argparse
 import mlflow
+import pandas as pd
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from mlflow.tracking import MlflowClient
 
 def parse_args():
@@ -24,6 +26,8 @@ def clean_models(model):
   # Delete a registered model along with all its versions
   mlflow_client.delete_registered_model(name=model)
 
+  
+# train and register model
 args=parse_args()
 alpha=args.alpha
 l1_ratio=args.l1_ratio
@@ -34,3 +38,15 @@ clean_models("ElasticnetWineModel")
 submitted_run = mlflow.projects.run(uri="https://github.com/mlflow/mlflow#examples/sklearn_elasticnet_wine", experiment_id=exp_id, parameters={"alpha":alpha, "l1_ratio":l1_ratio})
 submitted_run.wait()
 print(f"Submitted run with id: {submitted_run.run_id} and status: {submitted_run.get_status()}")
+
+# Evaluate model (should be on unseen test data)
+csv_url = "http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv"
+train_ds = pd.read_csv(csv_url,delimiter=";",header=0)
+y_actual = train_ds.pop("quality")
+logged_model = "models:/{model_name}/none".format(model_name="ElasticnetWineModel")
+# Load model as a PyFuncModel.
+loaded_model = mlflow.sklearn.load_model(logged_model)
+# Predict on a Pandas DataFrame.
+y_predicted = loaded_model.predict(train_ds)
+r2 = r2_score(y_actual,y_predicted)
+sys.exit(str(r2))
